@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>明天共和国 · 入籍申请</title>
+<style>
+body{font-family:"Microsoft YaHei",sans-serif;background:#1a1a2e;color:#eee;padding:20px}
+h1{color:#e74c3c;text-align:center}
+.container{max-width:500px;margin:0 auto;background:#16213e;padding:20px;border-radius:10px}
+label{display:block;margin-top:15px;color:#aaa}
+input,textarea,select{width:100%;padding:8px;margin-top:5px;background:#0f3460;color:#fff;border:1px solid #e74c3c;border-radius:5px;box-sizing:border-box}
+button{width:100%;padding:12px;margin-top:20px;background:#e74c3c;color:#fff;border:none;border-radius:5px;font-size:16px;cursor:pointer}
+button:hover{background:#c0392b}
+.status{margin-top:15px;text-align:center;font-size:14px}
+.success{color:#2ecc71}
+.error{color:#e74c3c}
+</style>
+</head>
+<body>
+<h1>🇹🇲 明天共和国入籍申请</h1>
+<div class="container">
+<label>称呼</label><input id="name" required placeholder="你想点称呼你？">
+<label>性别</label><select id="gender"><option>男</option><option>女</option><option>其他</option></select>
+<label>出生日期</label><input id="birth" type="date">
+<label>公民类别</label><select id="type"><option>精神公民</option><option>荣誉公民</option><option>访客</option></select>
+<label>申请理由</label><textarea id="reason" rows="3" placeholder="为什么想加入明天共和国？"></textarea>
+<button onclick="submitApp()">递交申请</button>
+<div class="status" id="status"></div>
+</div>
+
+<script>
+const TOKEN = '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';
+const REPO = 'xiaobei484/tomorrow-republic-citizens';
+
+async function submitApp(){
+  const name = document.getElementById('name').value.trim();
+  if(!name){alert('填个名先啦🤪');return}
+  
+  const title = `入籍申请：${name}`;
+  const body = `## 申请人资料\n\n- **称呼**：${name}\n- **性别**：${document.getElementById('gender').value}\n- **出生日期**：${document.getElementById('birth').value}\n- **公民类别**：${document.getElementById('type').value}\n- **申请理由**：${document.getElementById('reason').value}\n- **提交时间**：${new Date().toLocaleString('zh-CN')}\n\n---\n舰长请批复 🤪`;
+  
+  document.getElementById('status').innerHTML = '提交中...';
+  
+  try{
+    const r = await fetch(`https://api.github.com/repos/${REPO}/issues`,{
+      method:'POST',
+      headers:{'Authorization':`token ${TOKEN}`,'Content-Type':'application/json'},
+      body:JSON.stringify({title,body,labels:['入籍申请','待批复']})
+    });
+    if(r.ok){
+      document.getElementById('status').innerHTML = '<span class="success">✓ 申请已送达总统府！月凌批复中...</span>';
+      document.querySelectorAll('input,textarea').forEach(i=>i.value='');
+    } else {
+      document.getElementById('status').innerHTML = '<span class="error">✗ 提交失败，重试啦🤪</span>';
+    }
+  }catch(e){
+    document.getElementById('status').innerHTML = '<span class="error">✗ 网络错误🤪</span>';
+  }
+}
+</script>
+</body>
+</html>
